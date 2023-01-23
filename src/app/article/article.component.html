@@ -1,0 +1,174 @@
+<div *ngIf="voirListesArticles">
+    <h2 style="text-align: center;">Listes des articles</h2>
+    <button type="button" class="btn rounded-pill btn-primary" (click)="afficherFormulaireAjouter()">Ajouter</button>
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Numero</th>
+                <th>Code</th>
+                <th>Désignation</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Description</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let article of articles; let i = index">
+                <td>{{ i+1 }}</td>
+                <td>{{ article.code }}</td>
+                <td>{{ article.designation }}</td>
+                <td>{{ article.prixUnitaire }}</td>
+                <td>{{ article.quantite }}</td>
+                <td>{{ article.description }}</td>
+                <td style="text-align: center;">
+                    <button type="button" class="btn btn-info" (click)="afficherPageDetail(article.id)">Detail</button>
+                    <button type="button" class="btn btn-warning" (click)="afficherFormulaireModifier(article.id)">Modifier</button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Supprimer</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" role="dialog">
+                        <div class="modal-dialog">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Suppression d'un article</h4>
+                                </div>
+                                <div class="modal-body" style="text-align:center;">
+                                    <p>Cette action est irréversible.</p>
+                                    <p>Vous êtes sûr de vouloir supprimer cet article ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success" data-dismiss="modal">Non</button>
+                                    <button type="button" (click)="supprimerArticle(article.id)" class="btn btn-danger" data-dismiss="modal">Oui</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div *ngIf="!voirFormulaireAjout">
+    <h2>Ajout d'un article</h2>
+    <button type="button" class="btn rounded-pill btn-success" (click)="retour()">Retour</button>
+    <div *ngIf="!erreur" class="alert alert-danger">{{ messageErreur }}</div>
+    <form class="form-horizontal" [formGroup]="articleForm" (ngSubmit)="ajouterArticle()">
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="code">Code:</label>
+            <div class="col-sm-10 ">
+                <input type="text" class="form-control " id="code" placeholder="Le code de l'article" name="code" formControlName="code" [(ngModel)]="article.code" required>
+                <div class="alert alert-danger" [hidden]="code.valid || code.pristine && !code.touched">Le code est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="designation">Désignation:</label>
+            <div class="col-sm-10 ">
+                <input type="text" class="form-control " id="designation" placeholder="La designation de l'article" name="designation" formControlName="designation" [(ngModel)]="article.designation" required>
+                <div class="alert alert-danger" [hidden]="designation.valid || designation.pristine && !designation.touched">La désignation est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="prixUnitaire">Prix unitaire:</label>
+            <div class="col-sm-10 ">
+                <input type="number" class="form-control " id="prixUnitaire" name="prixUnitaire" formControlName="prixUnitaire" [(ngModel)]="article.prixUnitaire" required>
+                <div class="alert alert-danger" [hidden]="prixUnitaire.valid || prixUnitaire.pristine && !prixUnitaire.touched">Le prix unitaire est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="quantite">Quantité:</label>
+            <div class="col-sm-10 ">
+                <input type="number" class="form-control " id="quantite" name="quantite" formControlName="quantite" [(ngModel)]="article.quantite" required>
+                <div class="alert alert-danger" [hidden]="quantite.valid || quantite.pristine && !quantite.touched">La quantité est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2 " for="description">Description:</label>
+            <div class="col-sm-10 ">
+                <textarea type="text" class="form-control " id="description" placeholder="La description de l'article" name="code" formControlName="description" [(ngModel)]="article.description" required>
+                </textarea>
+                <div class="alert alert-danger" [hidden]="description.valid || description.pristine && !description.touched">Le description est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <div class="col-sm-offset-2 col-sm-10 ">
+                <button type="submit" [disabled]="articleForm.invalid" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div *ngIf="!voirFormulaireModification">
+    <h2>Modification d'un article</h2>
+    <button type="button" class="btn rounded-pill btn-success" (click)="retour()">Retour</button>
+    <div *ngIf="!erreur" class="alert alert-danger">{{ messageErreur }}</div>
+    <form class="form-horizontal" [formGroup]="articleForm" (ngSubmit)="modifierArticle()">
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="code">Code:</label>
+            <div class="col-sm-10 ">
+                <input type="text" class="form-control " id="code" placeholder="Le code de l'article" name="code" formControlName="code" [(ngModel)]="article.code" required>
+                <div class="alert alert-danger" [hidden]="code.valid || code.pristine && !code.touched">Le code est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="designation">Désignation:</label>
+            <div class="col-sm-10 ">
+                <input type="text" class="form-control " id="designation" placeholder="La designation de l'article" name="designation" formControlName="designation" [(ngModel)]="article.designation" required>
+                <div class="alert alert-danger" [hidden]="designation.valid || designation.pristine && !designation.touched">La désignation est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="prixUnitaire">Prix unitaire:</label>
+            <div class="col-sm-10 ">
+                <input type="number" class="form-control " id="prixUnitaire" name="prixUnitaire" formControlName="prixUnitaire" [(ngModel)]="article.prixUnitaire" required>
+                <div class="alert alert-danger" [hidden]="prixUnitaire.valid || prixUnitaire.pristine && !prixUnitaire.touched">Le prix unitaire est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <label class="control-label col-sm-2 " for="quantite">Quantité:</label>
+            <div class="col-sm-10 ">
+                <input type="number" class="form-control " id="quantite" name="quantite" formControlName="quantite" [(ngModel)]="article.quantite" required>
+                <div class="alert alert-danger" [hidden]="quantite.valid || quantite.pristine && !quantite.touched">La quantité est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2 " for="description">Description:</label>
+            <div class="col-sm-10 ">
+                <textarea type="text" class="form-control " id="description" placeholder="La description de l'article" name="code" formControlName="description" [(ngModel)]="article.description" required>
+                </textarea>
+                <div class="alert alert-danger" [hidden]="description.valid || description.pristine && !description.touched">Le description est obligatoire</div>
+            </div>
+        </div>
+        <div class="form-group ">
+            <div class="col-sm-offset-2 col-sm-10 ">
+                <button type="submit" [disabled]="articleForm.invalid" class="btn btn-primary">Modifier</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div *ngIf="!voirPageDetail">
+    <h2>Détail d'un article</h2>
+    <button type="button" class="btn rounded-pill btn-success" (click)="retour()">Retour</button>
+    <div class="card-body">
+        <br>
+        <div class="col-xl-4 col-md-6 col-sm-12 mb-4">
+            <span style="font-weight: bold;">Désignation: </span>
+            <span>{{ article.designation }}</span>
+            <br>
+            <br>
+            <span style="font-weight: bold;">Prix unitaire: </span>
+            <span>{{ article.prixUnitaire }}</span>
+            <br>
+            <br>
+            <span style="font-weight: bold;">Quantité: </span>
+            <span>{{ article.quantite }}</span>
+            <br>
+            <br>
+            <span style="font-weight: bold;">Description: </span>
+            <span>{{ article.description }}</span>
+        </div>
+    </div>
+</div>
